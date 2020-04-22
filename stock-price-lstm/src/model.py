@@ -1,19 +1,5 @@
-import numpy as np
-import random
-import pandas as pd
-import matplotlib.pyplot as plt
-from pandas import datetime
-import math, time
-import itertools
-from sklearn import preprocessing
-from sklearn.preprocessing import MinMaxScaler
-import datetime
-from operator import itemgetter
-from sklearn.metrics import mean_squared_error
-from math import sqrt
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 
 class LSTM(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
@@ -52,6 +38,6 @@ if __name__ == "__main__":
     optimiser = torch.optim.Adam(model.parameters(), lr=0.01)
 
     print('Model: ', model)
-    print("# of Parameters: ", len(list(model.parameters())))
+    print("# of Parameter Matrices: ", len(list(model.parameters())))
     for param in list(model.parameters()):
         print(param.size())
