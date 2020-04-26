@@ -8,9 +8,10 @@ from functools import reduce
 
 
 class StockDataset(Dataset):
-    def __init__(self, data_dir, interpolation='nearest', window_size=100, num_files=None,
+    def __init__(self, data_dir, device, interpolation='nearest', window_size=100, num_files=None,
                  start_date='2000-01-01', end_date='2019-01-01'):
         self.window_size = window_size
+        self.device = device
 
         # Hard coded path needs to be changed
         stock_data_list = []
@@ -55,8 +56,8 @@ class StockDataset(Dataset):
         return len(self.df_final) - self.window_size + 1
 
     def __getitem__(self, idx):
-        X = torch.tensor(self.df_final.iloc[idx: idx + self.window_size, :].values)
-        y = torch.tensor(self.df_final.iloc[idx + self.window_size + 1, :].values)
+        X = torch.tensor(self.df_final.iloc[idx: idx + self.window_size, :].values, device=self.device)
+        y = torch.tensor(self.df_final.iloc[idx + self.window_size + 1, :].values, device=self.device)
 
         # data = torch.zeros(self.window_size, 2)
         # for i in range(0, self.window_size):

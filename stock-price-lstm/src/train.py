@@ -28,9 +28,9 @@ class TrainModel:
         val_start = '2017-01-01'
         val_end = '2019-01-01'
 
-        self.train_data = StockDataset(data_dir, interpolation=interpolation, num_files=num_files,
+        self.train_data = StockDataset(data_dir, device, interpolation=interpolation, num_files=num_files,
                                start_date=train_start, end_date=val_start)
-        self.val_data = StockDataset(data_dir, interpolation='zero', num_files=num_files,
+        self.val_data = StockDataset(data_dir, device, interpolation='zero', num_files=num_files,
                                start_date=val_start, end_date=val_end)
 
         num_features = self.train_data.num_features
