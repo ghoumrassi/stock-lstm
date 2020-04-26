@@ -16,6 +16,7 @@ class TrainModel:
 
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
+        save_model_loc = 'model_save.p'
         num_files = 100
         num_epochs = 2
         hidden_dim = 50
@@ -72,6 +73,7 @@ class TrainModel:
                 self.predictions = np.vstack(predictions_list)
             print('Training Loss: %.4g' % training_loss)
             print('Validation Loss: %.4g' % val_loss)
+        torch.save(model.state_dict(), save_model_loc)
 
     def show_graph(self, series_name):
         actual = self.val_data.df_final
