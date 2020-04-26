@@ -8,7 +8,7 @@ from functools import reduce
 
 
 class StockDataset(Dataset):
-    def __init__(self, data_dir, device, interpolation='nearest', window_size=100, num_files=None,
+    def __init__(self, data_dir, device="cpu", interpolation='nearest', window_size=100, num_files=None,
                  start_date='2000-01-01', end_date='2019-01-01'):
         self.window_size = window_size
         self.device = device
