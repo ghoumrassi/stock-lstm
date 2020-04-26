@@ -65,7 +65,10 @@ class TrainModel:
                     y_pred = out[:, -1, :].view(batch_size, -1)
                     loss = criterion(y_pred, y)
                     val_loss += loss.item()
-                    predictions_list.append(y_pred.data.numpy())
+                    if device == "cpu":
+                        predictions_list.append(y_pred.data.numpy())
+                    else:
+                        predictions_list.append(y_pred.data.cpu().numpy())
                 self.predictions = np.vstack(predictions_list)
             print('Training Loss: %.4g' % training_loss)
             print('Validation Loss: %.4g' % val_loss)

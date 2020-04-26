@@ -74,7 +74,7 @@ class StockDataset(Dataset):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    ds = StockDataset(r"E:\Datasets\YahooFinance\YahooSPData", interpolation='zero')
+    ds = StockDataset(r"E:\Datasets\YahooFinance\YahooSPData", interpolation='zero', num_files=10)
     print(ds.df_final.head())
     (ds.df_final.notnull().sum(axis=1) / ds.df_final.shape[1]).plot()
     plt.show()
