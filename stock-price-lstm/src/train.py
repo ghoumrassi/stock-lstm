@@ -11,55 +11,59 @@ import matplotlib.pyplot as plt
 
 
 class TrainModel:
-    def __init__(self, data_dir, model_path, save_path, reload):
+    def __init__(self, data_dir="E:/Datasets/YahooFinance/YahooSPData",
+                 model_path=None, save_path='model', reload=False, num_epochs=0):
 
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-        num_epochs = 150
-        hidden_dim = 50
+        num_epochs = num_epochs
+        hidden_dim = 100
         learning_rate = 0.1
         momentum = 0.1
-        batch_size = 20
-        prediction_lag = 3
+        prediction_lag = 7
+        window_size = 365
+        self.batch_size = 20
 
         train_start = '2002-01-01'
-        val_start = '2017-01-01'
+        train_end = '2017-01-01'
+        val_start = '2016-01-01'
         val_end = '2019-01-01'
 
-        self.train_data = StockDataset(device=device, start_date=train_start, end_date=val_start,
-                                       prediction_lag=prediction_lag, reload_data=reload, data_dir=data_dir)
-        self.val_data = StockDataset(device=device, start_date=val_start, end_date=val_end,
-                                     prediction_lag=prediction_lag)
+        self.train_data = StockDataset(device=self.device, window_size=window_size, start_date=train_start,
+                                       end_date=train_end, prediction_lag=prediction_lag, reload_data=reload,
+                                       data_dir=data_dir)
+        self.val_data = StockDataset(device=self.device, window_size=window_size, start_date=val_start,
+                                     end_date=val_end, prediction_lag=prediction_lag)
 
         num_features = self.train_data.num_features
 
-        model = LSTM(input_dim=num_features, hidden_dim=hidden_dim, output_dim=num_features)
-        model = model.double()
+        self.model = LSTM(input_dim=num_features, hidden_dim=hidden_dim, output_dim=num_features)
+        self.model = self.model.double()
 
         # Load model if path specified
         if model_path:
-            model.load_state_dict(torch.load(model_path, map_location=torch.device(device)))
+            self.model.load_state_dict(torch.load(model_path, map_location=torch.device(self.device)))
 
-        model.to(device)
+        self.model.to(self.device)
         print(torch.cuda.is_available())
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+        optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         criterion = nn.MSELoss()
 
-        train_loader = DataLoader(self.train_data, batch_size=batch_size, shuffle=False, drop_last=True)
-        val_loader = DataLoader(self.val_data, batch_size=batch_size, shuffle=False, drop_last=True)
+        train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
+        self.val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
 
         self.loss_dict = {'train': [], 'val': []}
         for epoch in range(num_epochs):
-            if (epoch + 1) % 50 == 0:
+            if (self.loss_dict['val'][-1] / self.loss_dict['val'][-2]) - 1 < 0.005:
                 print("Learning rate reduced.")
-                learning_rate *= 0.1
+                learning_rate /= 2
             print("Epoch: ", epoch + 1)
             training_loss = 0
             val_loss = 0
             for X, y in train_loader:
-                model.zero_grad()
-                out = model(X)
-                y_pred = out[:, -1, :].view(batch_size, -1)
+                self.model.zero_grad()
+                out = self.model(X)
+                y_pred = out[:, -1, :].view(self.batch_size, -1)
                 loss = criterion(y_pred, y)
                 training_loss += loss.item()
                 loss.backward()
@@ -67,12 +71,12 @@ class TrainModel:
 
             with torch.set_grad_enabled(False):
                 predictions_list = []
-                for X, y in val_loader:
-                    out = model(X)
-                    y_pred = out[:, -1, :].view(batch_size, -1)
+                for X, y in self.val_loader:
+                    out = self.model(X)
+                    y_pred = out[:, -1, :].view(self.batch_size, -1)
                     loss = criterion(y_pred, y)
                     val_loss += loss.item()
-                    if device == "cpu":
+                    if self.device == "cpu":
                         predictions_list.append(y_pred.data.numpy())
                     else:
                         predictions_list.append(y_pred.data.cpu().numpy())
@@ -83,8 +87,13 @@ class TrainModel:
             self.loss_dict['val'].append(val_loss)
 
             # Save model
-            torch.save(model.state_dict(), save_path)
+            torch.save(self.model.state_dict(), save_path)
 
+        if num_epochs != 0:
+            self.predictions.index = self.val_data.target_dates(end=len(self.predictions))
+            self.predictions.columns = self.val_data.names
+
+    def save2csv(self):
         # Save predictions
         self.val_data.data.to_csv('val_data.csv')
         pd.DataFrame(
@@ -92,21 +101,37 @@ class TrainModel:
             columns=self.val_data.names
         ).to_csv('predictions.csv')
 
+    def predict(self):
+        with torch.set_grad_enabled(False):
+            predictions_list = []
+            for X, y in self.val_loader:
+                out = self.model(X)
+                y_pred = out[:, -1, :].view(self.batch_size, -1)
+                if self.device == "cpu":
+                    predictions_list.append(y_pred.data.numpy())
+                else:
+                    predictions_list.append(y_pred.data.cpu().numpy())
+            self.predictions = np.vstack(predictions_list)
 
-    def show_graph(self, series_name):
-        actual = self.val_data.data
-        predictions = self.predictions
+        self.predictions = pd.DataFrame(self.predictions)
+        self.predictions.index = self.val_data.target_dates(end=len(self.predictions))
+        self.predictions.columns = self.val_data.names
 
-        cols = self.val_data.names
 
-        predictions_frame = pd.DataFrame(predictions, columns=cols)
-        predictions_frame.index = self.val_data.target_dates()
-
-        fig, ax = plt.subplots(figsize=(8, 8))
-        predictions_frame[series_name].plot(ax=ax)
-        actual[series_name].plot(ax=ax)
-        ax.legend(["Prediction", "Actual"])
-        plt.show()
+    # def show_graph(self, series_name):
+    #     actual = self.val_data.data
+    #     predictions = self.predictions
+    #
+    #     cols = self.val_data.names
+    #
+    #     predictions_frame = pd.DataFrame(predictions, columns=cols)
+    #     predictions_frame.index = self.val_data.target_dates()
+    #
+    #     fig, ax = plt.subplots(figsize=(8, 8))
+    #     predictions_frame[series_name].plot(ax=ax)
+    #     actual[series_name].plot(ax=ax)
+    #     ax.legend(["Prediction", "Actual"])
+    #     plt.show()
 
     def loss_graph(self):
         fig, ax = plt.subplots(figsize=(8, 8))
@@ -131,6 +156,8 @@ if __name__ == "__main__":
                         help="Reload data from data directory.")
     parser.add_argument("-d", "--data-dir", dest="data_dir", default="E:/Datasets/YahooFinance/YahooSPData",
                         help="Directory of stock price data.")
+    parser.add_argument("-e", "--epochs", dest="epochs", default=100,
+                        help="Number of epochs to train for.")
 
     args = parser.parse_args()
 
@@ -138,7 +165,9 @@ if __name__ == "__main__":
     save_path = args.save_data
     reload = args.reload
     data_dir = args.data_dir
+    epochs = args.epochs
 
-    training = TrainModel(data_dir, model_path, save_path, reload)
-    training.show_graph('AAPL')
+    training = TrainModel(data_dir=data_dir, model_path=model_path, save_path=save_path,
+                          reload=reload, num_epochs=epochs)
+    # training.show_graph('AAPL')
     training.loss_graph()

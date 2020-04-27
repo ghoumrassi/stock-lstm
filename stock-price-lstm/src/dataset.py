@@ -37,11 +37,14 @@ class StockDataset(Dataset):
 
     def __getitem__(self, idx):
         X = torch.tensor(self.data.iloc[idx: idx + self.window_size, :].values, device=self.device)
-        y = torch.tensor(self.data.iloc[idx + self.window_size + self.prediction_lag, :].values, device=self.device)
+        y = torch.tensor(self.data.iloc[
+                         idx + self.window_size: idx + self.window_size + self.prediction_lag, :
+                    ].values, device=self.device).sum(dim=0)
         return X, y
 
     def target_dates(self, start=0, end=-1):
-        return self.data.iloc[start + self.window_size + self.prediction_lag, : end].index
+        y_start = start + self.window_size + self.prediction_lag
+        return self.data.index[y_start: y_start + end]
 
     @property
     def num_features(self):
