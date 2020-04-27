@@ -15,7 +15,7 @@ class TrainModel:
 
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-        num_epochs = 1
+        num_epochs = 1500
         hidden_dim = 50
         learning_rate = 0.01
         momentum = 0.1
