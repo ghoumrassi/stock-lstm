@@ -55,7 +55,7 @@ class TrainModel:
         self.loss_dict = {'train': [], 'val': []}
         for epoch in range(num_epochs):
             if epoch > 2:
-                if (self.loss_dict['val'][-1] / self.loss_dict['val'][-2]) - 1 > 0.995:
+                if (self.loss_dict['val'][-1] / self.loss_dict['val'][-2]) > 0.995:
                     print("Learning rate reduced.")
                     learning_rate /= 2
             print("Epoch: ", epoch + 1)
