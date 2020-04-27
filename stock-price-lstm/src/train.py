@@ -46,7 +46,7 @@ class TrainModel:
 
         self.model.to(self.device)
         print(torch.cuda.is_available())
-        optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+        optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         criterion = nn.MSELoss()
 
         train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
