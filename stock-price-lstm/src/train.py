@@ -15,7 +15,7 @@ class TrainModel:
 
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-        num_epochs = 300
+        num_epochs = 150
         hidden_dim = 50
         learning_rate = 0.1
         momentum = 0.1
@@ -50,7 +50,7 @@ class TrainModel:
 
         self.loss_dict = {'train': [], 'val': []}
         for epoch in range(num_epochs):
-            if (epoch + 1) % 100 == 0:
+            if (epoch + 1) % 50 == 0:
                 print("Learning rate reduced.")
                 learning_rate *= 0.1
             print("Epoch: ", epoch + 1)
