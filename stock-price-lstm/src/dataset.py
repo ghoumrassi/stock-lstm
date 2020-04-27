@@ -12,7 +12,7 @@ from src.process_data import ProcessData
 class StockDataset(Dataset):
     def __init__(self, device="cpu", window_size=365, prediction_lag=1,
                  start_date='2000-01-01', end_date='2019-01-01', reload_data=False,
-                 data_dir="E:/Datasets/YahooFinance/YahooSPData"):
+                 data_dir='E:/Datasets/YahooFinance/YahooSPData'):
         self.window_size = window_size
         self.prediction_lag = prediction_lag
         self.device = device
@@ -23,7 +23,7 @@ class StockDataset(Dataset):
             process_data.convert_returns()
             process_data.save_data()
 
-        returns_path = r"../data/returns_data.csv"
+        returns_path = '../data/returns_data.csv'
 
         self.data = pd.read_csv(returns_path)
         self.data.set_index('Date', inplace=True)
