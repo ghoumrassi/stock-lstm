@@ -53,6 +53,7 @@ class TrainModel:
         self.val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
 
         self.loss_dict = {'train': [], 'val': []}
+        last_lr = 0
         for epoch in range(num_epochs):
             if epoch > 2:
                 last_val_loss = self.loss_dict['val'][-1]
@@ -60,6 +61,7 @@ class TrainModel:
                 if last_val_loss/prev_val_loss > 0.995 and epoch - last_lr > 10:
                     print("Learning rate reduced.")
                     learning_rate /= 2
+                    last_lr = epoch
             print("Epoch: ", epoch + 1)
             training_loss = 0
             val_loss = 0
