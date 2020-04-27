@@ -15,9 +15,9 @@ class TrainModel:
 
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-        num_epochs = 1500
+        num_epochs = 300
         hidden_dim = 50
-        learning_rate = 0.01
+        learning_rate = 0.1
         momentum = 0.1
         batch_size = 20
         prediction_lag = 3
@@ -82,8 +82,10 @@ class TrainModel:
             self.loss_dict['train'].append(training_loss)
             self.loss_dict['val'].append(val_loss)
 
-        # Save data
-        torch.save(model.state_dict(), save_path)
+            # Save model
+            torch.save(model.state_dict(), save_path)
+
+        # Save predictions
         self.val_data.data.to_csv('val_data.csv')
         pd.DataFrame(
             self.predictions,
