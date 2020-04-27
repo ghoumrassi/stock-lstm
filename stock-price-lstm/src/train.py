@@ -48,7 +48,7 @@ class TrainModel:
         train_loader = DataLoader(self.train_data, batch_size=batch_size, shuffle=False, drop_last=True)
         val_loader = DataLoader(self.val_data, batch_size=batch_size, shuffle=False, drop_last=True)
 
-        loss_dict = {'train': [], 'val': []}
+        self.loss_dict = {'train': [], 'val': []}
         for epoch in range(num_epochs):
             if (epoch + 1) % 500 == 0:
                 print("Learning rate reduced.")
@@ -79,8 +79,8 @@ class TrainModel:
                 self.predictions = np.vstack(predictions_list)
             print('Training Loss: %.4g' % training_loss)
             print('Validation Loss: %.4g' % val_loss)
-            loss_dict['train'].append(training_loss)
-            loss_dict['val'].append(val_loss)
+            self.loss_dict['train'].append(training_loss)
+            self.loss_dict['val'].append(val_loss)
 
         # Save data
         torch.save(model.state_dict(), save_path)
@@ -106,6 +106,12 @@ class TrainModel:
         ax.legend(["Prediction", "Actual"])
         plt.show()
 
+    def loss_graph(self):
+        fig, ax = plt.subplots(figsize=(8, 8))
+        ax.plot(self.loss_dict['train'])
+        ax.plot(self.loss_dict['val'])
+        ax.legend(["Prediction", "Actual"])
+        plt.show()
 
 if __name__ == "__main__":
     import argparse
@@ -133,3 +139,4 @@ if __name__ == "__main__":
 
     training = TrainModel(data_dir, model_path, save_path, reload)
     training.show_graph('AAPL')
+    training.loss_graph()

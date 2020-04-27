@@ -5,7 +5,7 @@ from functools import reduce
 
 
 class ProcessData:
-    def __init__(self, data_dir, save_dir='../data', interpolation='nearest'):
+    def __init__(self, data_dir, save_dir='..\\data', interpolation='nearest'):
         self.data_dir = data_dir
         self.save_dir = save_dir
         self.stock_data = None
