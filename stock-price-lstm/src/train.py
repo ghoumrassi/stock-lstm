@@ -156,7 +156,7 @@ if __name__ == "__main__":
                         help="Reload data from data directory.")
     parser.add_argument("-d", "--data-dir", dest="data_dir", default="E:/Datasets/YahooFinance/YahooSPData",
                         help="Directory of stock price data.")
-    parser.add_argument("-e", "--epochs", dest="epochs", default=100,
+    parser.add_argument("-e", "--epochs", dest="epochs", default=100, type=int,
                         help="Number of epochs to train for.")
 
     args = parser.parse_args()
