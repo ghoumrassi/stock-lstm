@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 class LSTM(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, num_layers=1):
@@ -13,14 +14,15 @@ class LSTM(nn.Module):
     def forward(self, x):
         # Initialise hidden states
         lstm_out, _ = self.lstm(x)
-        fc_out = self.fc(lstm_out)
+        dropout_out = F.dropout(lstm_out, p=0.2)
+        fc_out = self.fc(dropout_out)
         return fc_out
 
 if __name__ == "__main__":
     input_dim = 10
     hidden_dim = 10
     output_dim = 10
-    num_layers = 10
+    num_layers = 1
 
     model = LSTM(input_dim=input_dim, hidden_dim=hidden_dim, output_dim=output_dim,
                  num_layers=num_layers)

@@ -20,6 +20,7 @@ class TrainModel:
         hidden_dim = 100
         learning_rate = 0.1
         momentum = 0.1
+        num_layers = 2
         prediction_lag = 7
         window_size = 365
         self.batch_size = 20
@@ -37,7 +38,7 @@ class TrainModel:
 
         num_features = self.train_data.num_features
 
-        self.model = LSTM(input_dim=num_features, hidden_dim=hidden_dim, output_dim=num_features)
+        self.model = LSTM(input_dim=num_features, hidden_dim=hidden_dim, output_dim=num_features, num_layers=num_layers)
         self.model = self.model.double()
 
         # Load model if path specified
