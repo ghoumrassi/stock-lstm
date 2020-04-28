@@ -28,11 +28,14 @@ class TestPerformance:
             overall_returns += daily_returns
             overall_returns_hist.append(overall_returns)
 
-        expected_returns = actuals.mean(axis=1).cumsum().values
+        expected_returns = actuals.mean(axis=1).cumsum()
+
+        dates = expected_returns.index
+        expected_returns = expected_returns.values
 
         fig, ax = plt.subplots(figsize=(8, 8))
-        ax.plot([x / 7 for x in overall_returns_hist], label="Returns (Model)")
-        ax.plot([x / 7 for x in expected_returns], label="Expected Returns")
+        ax.plot([x / 7 for x in overall_returns_hist], dates, label="Returns (Model)")
+        ax.plot([x / 7 for x in expected_returns], dates, label="Expected Returns")
         plt.legend()
         plt.show()
 
