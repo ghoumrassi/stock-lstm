@@ -73,7 +73,6 @@ class TrainModel:
             training_loss = 0
             val_loss = 0
             for X, y in train_loader:
-                print(batch_size, self.batch_size)
                 batch_size = y.shape[0]
                 self.model.zero_grad()
                 out = self.model(X)
@@ -122,6 +121,7 @@ class TrainModel:
             predictions_list = []
             for X, y in val_loader:
                 batch_size = y.shape[0]
+                print(batch_size, self.batch_size)
                 out = self.model(X)
                 y_pred = out[:, -1, :].view(batch_size, -1)
                 if self.device == "cpu":
