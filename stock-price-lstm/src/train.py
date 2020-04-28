@@ -115,9 +115,11 @@ class TrainModel:
 
     def predict(self):
         test_loader = DataLoader(self.test_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
+        print(len(test_loader))
         with torch.set_grad_enabled(False):
             predictions_list = []
             for X, y in test_loader:
+                print(y)
                 out = self.model(X)
                 y_pred = out[:, -1, :].view(self.batch_size, -1)
                 if self.device == "cpu":
