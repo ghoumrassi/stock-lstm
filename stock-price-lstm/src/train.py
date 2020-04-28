@@ -115,6 +115,7 @@ class TrainModel:
 
     def predict(self):
         test_loader = DataLoader(self.test_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
+        print(len(self.test_data))
         print(len(test_loader))
         with torch.set_grad_enabled(False):
             predictions_list = []
