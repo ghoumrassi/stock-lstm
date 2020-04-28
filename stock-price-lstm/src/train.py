@@ -56,8 +56,8 @@ class TrainModel:
         optimizer = optim.SGD(self.model.parameters(), lr=learning_rate, momentum=momentum)
         criterion = nn.MSELoss()
 
-        train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
-        val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
+        train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=False)
+        val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False)
 
         self.loss_dict = {'train': [], 'val': []}
         last_lr = 0
@@ -73,9 +73,10 @@ class TrainModel:
             training_loss = 0
             val_loss = 0
             for X, y in train_loader:
+                batch_size = y.shape[0]
                 self.model.zero_grad()
                 out = self.model(X)
-                y_pred = out[:, -1, :].view(self.batch_size, -1)
+                y_pred = out[:, -1, :].view(batch_size, -1)
                 loss = criterion(y_pred, y)
                 training_loss += loss.item()
                 loss.backward()
@@ -84,8 +85,9 @@ class TrainModel:
             with torch.set_grad_enabled(False):
                 predictions_list = []
                 for X, y in val_loader:
+                    batch_size = y.shape[0]
                     out = self.model(X)
-                    y_pred = out[:, -1, :].view(self.batch_size, -1)
+                    y_pred = out[:, -1, :].view(batch_size, -1)
                     loss = criterion(y_pred, y)
                     val_loss += loss.item()
                     if self.device == "cpu":
@@ -114,7 +116,7 @@ class TrainModel:
         ).to_csv('predictions.csv')
 
     def predict(self):
-        val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
+        val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False)
         with torch.set_grad_enabled(False):
             predictions_list = []
             for X, y in val_loader:
