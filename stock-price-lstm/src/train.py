@@ -118,7 +118,6 @@ class TrainModel:
         with torch.set_grad_enabled(False):
             predictions_list = []
             for X, y in val_loader:
-                print(y)
                 out = self.model(X)
                 y_pred = out[:, -1, :].view(self.batch_size, -1)
                 if self.device == "cpu":
@@ -128,8 +127,8 @@ class TrainModel:
             self.predictions = np.vstack(predictions_list)
 
         self.predictions = pd.DataFrame(self.predictions)
-        self.predictions.index = self.test_data.target_dates(end=len(self.predictions))
-        self.predictions.columns = self.test_data.names
+        self.predictions.index = self.val_data.target_dates(end=len(self.predictions))
+        self.predictions.columns = self.val_data.names
 
     # def show_graph(self, series_name):
     #     actual = self.val_data.data
