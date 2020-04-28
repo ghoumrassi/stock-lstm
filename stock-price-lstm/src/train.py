@@ -27,14 +27,20 @@ class TrainModel:
 
         train_start = '2002-01-01'
         train_end = '2017-01-01'
+
         val_start = '2016-01-01'
-        val_end = '2019-01-01'
+        val_end = '2020-01-01'
+
+        test_start = '2019-01-01'
+        test_end = None
 
         self.train_data = StockDataset(device=self.device, window_size=window_size, start_date=train_start,
                                        end_date=train_end, prediction_lag=prediction_lag, reload_data=reload,
                                        data_dir=data_dir)
         self.val_data = StockDataset(device=self.device, window_size=window_size, start_date=val_start,
                                      end_date=val_end, prediction_lag=prediction_lag)
+        self.test_data = StockDataset(device=self.device, window_size=window_size, start_date=test_start,
+                                      end_date=test_end, prediction_lag=prediction_lag)
 
         num_features = self.train_data.num_features
 
@@ -51,7 +57,7 @@ class TrainModel:
         criterion = nn.MSELoss()
 
         train_loader = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
-        self.val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
+        val_loader = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
 
         self.loss_dict = {'train': [], 'val': []}
         last_lr = 0
@@ -59,7 +65,7 @@ class TrainModel:
             if epoch > 2:
                 last_val_loss = self.loss_dict['val'][-1]
                 prev_val_loss = self.loss_dict['val'][-2]
-                if last_val_loss/prev_val_loss > 0.995 and epoch - last_lr > 10:
+                if last_val_loss / prev_val_loss > 0.995 and epoch - last_lr > 10:
                     print("Learning rate reduced.")
                     learning_rate /= 2
                     last_lr = epoch
@@ -77,7 +83,7 @@ class TrainModel:
 
             with torch.set_grad_enabled(False):
                 predictions_list = []
-                for X, y in self.val_loader:
+                for X, y in val_loader:
                     out = self.model(X)
                     y_pred = out[:, -1, :].view(self.batch_size, -1)
                     loss = criterion(y_pred, y)
@@ -108,9 +114,10 @@ class TrainModel:
         ).to_csv('predictions.csv')
 
     def predict(self):
+        test_loader = DataLoader(self.test_data, batch_size=self.batch_size, shuffle=False, drop_last=True)
         with torch.set_grad_enabled(False):
             predictions_list = []
-            for X, y in self.val_loader:
+            for X, y in test_loader:
                 out = self.model(X)
                 y_pred = out[:, -1, :].view(self.batch_size, -1)
                 if self.device == "cpu":
@@ -120,9 +127,8 @@ class TrainModel:
             self.predictions = np.vstack(predictions_list)
 
         self.predictions = pd.DataFrame(self.predictions)
-        self.predictions.index = self.val_data.target_dates(end=len(self.predictions))
-        self.predictions.columns = self.val_data.names
-
+        self.predictions.index = self.test_data.target_dates(end=len(self.predictions))
+        self.predictions.columns = self.test_data.names
 
     # def show_graph(self, series_name):
     #     actual = self.val_data.data
@@ -145,6 +151,7 @@ class TrainModel:
         ax.plot(self.loss_dict['val'])
         ax.legend(["Prediction", "Actual"])
         plt.show()
+
 
 if __name__ == "__main__":
     import argparse

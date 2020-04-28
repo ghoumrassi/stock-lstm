@@ -28,9 +28,9 @@ class StockDataset(Dataset):
         self.data = pd.read_csv(returns_path)
         self.data.set_index('Date', inplace=True)
 
-        self.data = self.data[
-            (self.data.index >= start_date) & (self.data.index <= end_date)
-        ]
+        self.data = self.data[self.data.index >= start_date]
+        if end_date:
+            self.data = self.data[self.data.index <= end_date]
 
     def __len__(self):
         return len(self.data) - (self.window_size + self.prediction_lag) + 1

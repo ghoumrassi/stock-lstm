@@ -11,6 +11,7 @@ class TestPerformance:
 
         predictions = trained.predictions
         actuals = trained.val_data.data
+        actuals = actuals.rolling(7).sum()
         actuals = actuals[
             (actuals.index >= predictions.index[0]) & (actuals.index <= predictions.index[-1])
         ]
@@ -35,11 +36,6 @@ class TestPerformance:
         ax.plot(expected_returns, label="Expected Returns")
         plt.legend()
         plt.show()
-        #     ld[largest.name] = largest.index.values
-        #
-        # highest_pred = pd.DataFrame(ld).transpose()
-        #
-        # for row in highest_pred
 
 if __name__ == "__main__":
-    TestPerformance(r"E:\University\GraphNeuralNetworkProject\subprojects\base-lstm\stock-price-lstm\models\model-lstm-27042020")
+    TestPerformance(r"E:\University\GraphNeuralNetworkProject\subprojects\base-lstm\stock-price-lstm\models\model-lstm-7-day-return-2704")
