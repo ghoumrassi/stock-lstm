@@ -118,7 +118,7 @@ class TrainModel:
         with torch.set_grad_enabled(False):
             predictions_list = []
             for X, y in val_loader:
-                batch_size = y.shape.item()
+                batch_size = y.shape[0]
                 out = self.model(X)
                 y_pred = out[:, -1, :].view(batch_size, -1)
                 if self.device == "cpu":
