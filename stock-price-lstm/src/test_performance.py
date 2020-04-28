@@ -7,7 +7,6 @@ from src import TrainModel
 class TestPerformance:
     def __init__(self, model_path):
         trained = TrainModel(model_path=model_path)
-        trained.predict()
 
         predictions = trained.predictions
         actuals = trained.val_data.data
