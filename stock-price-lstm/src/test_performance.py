@@ -31,8 +31,8 @@ class TestPerformance:
         expected_returns = actuals.mean(axis=1).cumsum().values
 
         fig, ax = plt.subplots(figsize=(8, 8))
-        ax.plot(overall_returns_hist, label="Returns (Model)")
-        ax.plot(expected_returns, label="Expected Returns")
+        ax.plot([x / 7 for x in overall_returns_hist], label="Returns (Model)")
+        ax.plot([x / 7 for x in expected_returns], label="Expected Returns")
         plt.legend()
         plt.show()
 
