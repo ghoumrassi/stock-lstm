@@ -26,13 +26,13 @@ class TrainModel:
         self.batch_size = 20
 
         train_start = '2002-01-01'
-        train_end = '2017-01-01'
+        train_end = '2019-01-01'
 
-        val_start = '2016-01-01'
-        val_end = '2020-01-01'
+        val_start = '2018-01-01'
+        val_end = '2021-01-01'
 
         test_start = '2019-01-01'
-        test_end = None
+        test_end = '2021-01-01'
 
         self.train_data = StockDataset(device=self.device, window_size=window_size, start_date=train_start,
                                        end_date=train_end, prediction_lag=prediction_lag, reload_data=reload,
