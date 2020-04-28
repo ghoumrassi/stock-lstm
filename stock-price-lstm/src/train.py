@@ -73,6 +73,7 @@ class TrainModel:
             training_loss = 0
             val_loss = 0
             for X, y in train_loader:
+                print(batch_size, self.batch_size)
                 batch_size = y.shape[0]
                 self.model.zero_grad()
                 out = self.model(X)
