@@ -42,8 +42,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("load-model", dest="load_model",
-                        help="Location of saved model state.")
+    parser.add_argument("load_model", help="Location of saved model state.")
     args = parser.parse_args()
 
     TestPerformance(args.load_model)
