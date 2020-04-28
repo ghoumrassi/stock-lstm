@@ -14,7 +14,7 @@ class TestPerformance:
         actuals = actuals.rolling(7).sum()
         actuals = actuals[
             (actuals.index >= predictions.index[0]) & (actuals.index <= predictions.index[-1])
-        ]
+            ]
 
         ld = {}
 
@@ -31,11 +31,19 @@ class TestPerformance:
 
         expected_returns = actuals.mean(axis=1).cumsum().values
 
-        fig, ax = plt.subplots(figsize=(8,8))
+        fig, ax = plt.subplots(figsize=(8, 8))
         ax.plot(overall_returns_hist, label="Returns (Model)")
         ax.plot(expected_returns, label="Expected Returns")
         plt.legend()
         plt.show()
 
+
 if __name__ == "__main__":
-    TestPerformance(r"E:\University\GraphNeuralNetworkProject\subprojects\base-lstm\stock-price-lstm\models\model-lstm-7-day-return-2704")
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("load-model", dest="load_model",
+                        help="Location of saved model state.")
+    args = parser.parse_args()
+
+    TestPerformance(args.load_model)
